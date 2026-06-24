@@ -56,6 +56,22 @@ automaticamente in base alla descrizione, oppure puoi richiamarli per nome.
 | **taxes** | Fiscalità e reportistica del trading (focus Italia) |
 | **journaling** | Trading journal, statistiche, psicologia e disciplina |
 
+## Progetto MT4 (Expert Advisor)
+
+Filone dedicato allo sviluppo di EA per MetaTrader 4 su **oro, indici, metalli e forex**,
+con priorità a contenere **spread, commissioni e drawdown**.
+
+- [`experts/FleetGuard_EA.mq4`](experts/FleetGuard_EA.mq4) — motore EA *risk-first* e
+  *cost-aware*: sizing su rischio %, soft-stop su DD totale, stop giornaliero, filtri
+  spread/sessione, commissioni incluse nel rischio. La strategia è agganciabile nella
+  funzione `Signal()`.
+- [`docs/framework-rischio-e-backtest.md`](docs/framework-rischio-e-backtest.md) — profilo
+  di rischio raccomandato, regola dei costi e protocollo di backtest sullo Strategy Tester.
+- Specialista dedicato: **mql4-developer**.
+
+> Il backtest gira su MT4 (sul tuo PC): la flotta scrive il codice, definisce il protocollo
+> e legge i risultati. Esecuzione in reale solo come ultimo passo, dopo demo e revisione.
+
 ## Slash-command
 
 Comandi pronti in [`.claude/commands/`](.claude/commands/) per orchestrare gli agenti:
