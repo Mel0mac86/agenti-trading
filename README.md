@@ -56,6 +56,20 @@ automaticamente in base alla descrizione, oppure puoi richiamarli per nome.
 | **taxes** | Fiscalità e reportistica del trading (focus Italia) |
 | **journaling** | Trading journal, statistiche, psicologia e disciplina |
 
+## Slash-command
+
+Comandi pronti in [`.claude/commands/`](.claude/commands/) per orchestrare gli agenti:
+
+| Comando | Cosa fa |
+|---------|---------|
+| `/analizza <strumento>` | Analisi completa (tecnica + fondamentale + sentiment + macro) |
+| `/trade-plan <tesi>` | Costruisce un trade plan completo (entry, stop, target, size) |
+| `/risk-check <trade>` | Second opinion su rischio, disciplina e bias |
+| `/backtest <strategia>` | Testa e valida una strategia su dati storici |
+| `/journal <trade>` | Registra un trade e analizza statistiche ed errori |
+
+Le regole comuni a tutta la flotta sono in [`CLAUDE.md`](CLAUDE.md).
+
 ## Flusso tipico
 
 1. **strategist** definisce il quadro (regime, stile, allocazione).
