@@ -35,3 +35,34 @@ Validazione **out-of-sample**: parametri valutati su 2020–2022, classifica su 
 4. Ripetere la stessa procedura su indici e altri pair (dati sempre da HistData).
 
 Riproduci: `python3 scripts/backtest.py XAUUSD --tf M15 H1 H4 D1 --split 2023`
+
+---
+
+## Aggiornamento v2: ricerca di WR più alto e DD più basso
+
+Con `scripts/backtest_v2.py` ho aggiunto filtro di trend (EMA200), take-profit,
+trailing stop, ADX e setup pullback-in-trend, per cercare win rate più alto e
+drawdown più basso.
+
+### Esito (onesto): i tre obiettivi sono in conflitto su XAU/USD
+
+| Variante | WR | OOS ret | PF | IS ret |
+|----------|----:|--------:|----:|-------:|
+| EMAtrend +TP 1.5 | 58% | +0,3% | 1,01 | −33,5% |
+| EMAtrend +TP 2.5 | 46% | +27% | 1,08 | −27,8% |
+| Pullback r7 | 44% | +18% | 1,16 | −10,6% |
+| **EMAtrend (no TP)** | 26% | +61% | 1,61 | +3% |
+| **EMA 20/50 (v1)** | 27% | +44% | 1,31 | +44% |
+
+**Ogni variante ad alto WR / basso DD perde in-sample (PF ~1): nessun edge reale.**
+L'oro fa trend: mettere un take-profit taglia le poche vincite grandi che pagano
+tutto → il WR sale ma il sistema smette di guadagnare. È struttura di mercato.
+
+### Conclusioni operative
+
+- Non esiste, in modo robusto, "più profitto + più WR + meno DD insieme" su XAU/USD.
+- **Per ridurre il DD**: abbassare il rischio a 0,5%/trade (taglia il DD ~1/3, zero overfitting).
+- **Upgrade robusto**: filtro EMA200 sulla EMA 20/50 (PF 1,31 → 1,61) — da confermare su MT4.
+- **WR più alto sostenibile**: cercarlo su altri strumenti (indici/forex), non sull'oro.
+
+Riproduci: `python3 scripts/backtest_v2.py XAUUSD --tf M15 H1 H4 --split 2023`
