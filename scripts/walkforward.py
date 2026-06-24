@@ -7,26 +7,29 @@ solo in media su un singolo split. Parametri FISSI (non riottimizzati per anno):
 e' il test piu' onesto contro l'overfitting.
 
 Uso:
-    python3 walkforward.py XAUUSD --tf H1
+    python3 walkforward.py XAUUSD --strat ema2050 --tf H1
+    python3 walkforward.py SPXUSD --strat donch55 --tf H4 --spread 50
+    python3 walkforward.py SPXUSD --strat roc10 --tf D1 --spread 50
 """
 import os, sys, argparse
-from backtest import (load, atr, run, ema, sig_ema_cross,
+from backtest import (load, atr, run, ema, sma, rolling_std, highest, lowest,
+                      sig_ema_cross, sig_donchian, sig_roc, sig_boll_rev,
                       DEF_SPREAD_POINTS, DEF_POINT, DEF_COMM_PER_LOT, DEF_CONTRACT,
                       ATR_PERIOD, DATADIR)
 
 
-def sig_ema_trend(o, h, l, c):
-    """EMA 20/50 con filtro di trend EMA200 (long solo sopra, short solo sotto)."""
-    ef, es, e2 = ema(c, 20), ema(c, 50), ema(c, 200)
-    s = [0] * len(c)
-    for i in range(len(c)):
-        if None in (ef[i], es[i], e2[i]):
-            continue
-        if ef[i] > es[i] and c[i] > e2[i]:
-            s[i] = 1
-        elif ef[i] < es[i] and c[i] < e2[i]:
-            s[i] = -1
-    return s, "trend"
+# registro strategie: nome -> (funzione segnale, (k_stop, k_target))
+STRATS = {
+    "ema2050":  (lambda o,h,l,c: sig_ema_cross(o,h,l,c,20,50),        (2.0, 0.0)),
+    "ema20100": (lambda o,h,l,c: sig_ema_cross(o,h,l,c,20,100),       (2.0, 0.0)),
+    "ema50200": (lambda o,h,l,c: sig_ema_cross(o,h,l,c,50,200),       (2.0, 0.0)),
+    "donch20":  (lambda o,h,l,c: sig_donchian(o,h,l,c,20),            (2.0, 0.0)),
+    "donch40":  (lambda o,h,l,c: sig_donchian(o,h,l,c,40),            (2.0, 0.0)),
+    "donch55":  (lambda o,h,l,c: sig_donchian(o,h,l,c,55),            (2.0, 0.0)),
+    "roc10":    (lambda o,h,l,c: sig_roc(o,h,l,c,10),                 (2.0, 0.0)),
+    "roc20":    (lambda o,h,l,c: sig_roc(o,h,l,c,20),                 (2.0, 0.0)),
+    "boll20":   (lambda o,h,l,c: sig_boll_rev(o,h,l,c,20,2.0),        (1.5, 1.5)),
+}
 
 
 def slice_year(bars, a, year):
@@ -41,6 +44,7 @@ def slice_year(bars, a, year):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("pair")
+    ap.add_argument("--strat", default="ema2050", choices=sorted(STRATS))
     ap.add_argument("--tf", default="H1")
     ap.add_argument("--spread", type=int, default=DEF_SPREAD_POINTS)
     args = ap.parse_args()
@@ -53,29 +57,24 @@ def main():
     a = atr(h, l, c, ATR_PERIOD)
     bars = (t, o, h, l, c)
     years = sorted({dt.year for dt in t})
+    fn, (ks, kt) = STRATS[args.strat]
 
-    strats = [
-        ("EMA 20/50",        lambda o,h,l,c: sig_ema_cross(o,h,l,c,20,50)),
-        ("EMA 20/50 +EMA200", sig_ema_trend),
-    ]
-
-    print(f"# Walk-forward {args.pair} {args.tf} | costo {cost:.3f} | parametri FISSI\n")
-    for name, fn in strats:
-        print(f"### {name}")
-        print(f'{"Anno":6}{"ret":>9}{"PF":>7}{"DD":>7}{"WR":>6}{"#tr":>6}')
-        wins = 0; tot = 0
-        for y in years:
-            yb, ya = slice_year(bars, a, y)
-            if yb is None: continue
-            s, mode = fn(yb[1], yb[2], yb[3], yb[4])
-            r = run(yb, s, mode, ya, 2.0, 0.0, cost)
-            if not r:
-                print(f"{y:<6}{'n/d':>9}"); continue
-            tot += 1; wins += 1 if r["ret"] > 0 else 0
-            flag = "OK " if r["ret"] > 0 else "-- "
-            print(f'{y:<6}{r["ret"]*100:>8.1f}%{r["pf"]:>7.2f}{r["maxdd"]*100:>6.1f}%'
-                  f'{r["winrate"]*100:>5.0f}%{r["trades"]:>6d}  {flag}')
-        print(f"   -> anni positivi: {wins}/{tot}\n")
+    print(f"# Walk-forward {args.pair} {args.tf} | strat={args.strat} | "
+          f"costo {cost:.3f} | parametri FISSI\n")
+    print(f'{"Anno":6}{"ret":>9}{"PF":>7}{"DD":>7}{"WR":>6}{"#tr":>6}')
+    wins = 0; tot = 0
+    for y in years:
+        yb, ya = slice_year(bars, a, y)
+        if yb is None: continue
+        s, mode = fn(yb[1], yb[2], yb[3], yb[4])
+        r = run(yb, s, mode, ya, ks, kt, cost)
+        if not r:
+            print(f"{y:<6}{'n/d':>9}"); continue
+        tot += 1; wins += 1 if r["ret"] > 0 else 0
+        flag = "OK " if r["ret"] > 0 else "-- "
+        print(f'{y:<6}{r["ret"]*100:>8.1f}%{r["pf"]:>7.2f}{r["maxdd"]*100:>6.1f}%'
+              f'{r["winrate"]*100:>5.0f}%{r["trades"]:>6d}  {flag}')
+    print(f"\n   -> anni positivi: {wins}/{tot}")
 
 
 if __name__ == "__main__":

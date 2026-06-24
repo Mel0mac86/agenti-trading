@@ -67,6 +67,14 @@ con priorità a contenere **spread, commissioni e drawdown**.
   funzione `Signal()`.
 - [`docs/framework-rischio-e-backtest.md`](docs/framework-rischio-e-backtest.md) — profilo
   di rischio raccomandato, regola dei costi e protocollo di backtest sullo Strategy Tester.
+- [`docs/risultati-backtest-xauusd.md`](docs/risultati-backtest-xauusd.md) — risultati oro:
+  EMA 20/50 H1 validata in walk-forward (4/5 anni positivi).
+- [`docs/risultati-backtest-spxusd.md`](docs/risultati-backtest-spxusd.md) — risultati S&P 500:
+  le strategie non si trasferiscono; sull'indice esiste l'edge alto-WR/basso-DD (Bollinger D1).
+- [`docs/guida-demo-mt4.md`](docs/guida-demo-mt4.md) — guida passo-passo per compilare,
+  backtestare e avviare l'EA in demo su MT4.
+- Pipeline dati: `scripts/histdata_download.py`, `scripts/resample_mt4.py`,
+  `scripts/backtest.py`, `scripts/backtest_v2.py`, `scripts/walkforward.py`.
 - Specialista dedicato: **mql4-developer**.
 
 > Il backtest gira su MT4 (sul tuo PC): la flotta scrive il codice, definisce il protocollo
