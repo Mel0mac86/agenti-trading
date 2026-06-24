@@ -4,5 +4,9 @@
 *.zip
 histdata_page.html
 
+# Python
+__pycache__/
+*.pyc
+
 # Sistema
 .DS_Store
