@@ -66,3 +66,39 @@ tutto → il WR sale ma il sistema smette di guadagnare. È struttura di mercato
 - **WR più alto sostenibile**: cercarlo su altri strumenti (indici/forex), non sull'oro.
 
 Riproduci: `python3 scripts/backtest_v2.py XAUUSD --tf M15 H1 H4 --split 2023`
+
+---
+
+## Walk-forward anno per anno (verifica di robustezza)
+
+Con `scripts/walkforward.py`, parametri FISSI (non riottimizzati per anno) — il
+test più onesto contro l'overfitting. XAU/USD H1, costi reali.
+
+### EMA 20/50 — 4 anni su 5 positivi
+
+| Anno | ret | PF | DD | WR | #tr |
+|------|----:|----:|----:|----:|----:|
+| 2020 | +44,6% | 1,73 | 11,9% | 29% | 153 |
+| 2021 | −0,6%  | 1,01 | 13,8% | 29% | 191 |
+| 2022 | +1,1%  | 1,04 | 14,3% | 24% | 184 |
+| 2023 | +20,6% | 1,36 | 19,0% | 28% | 138 |
+| 2024 | +21,1% | 1,29 | 16,6% | 27% | 188 |
+
+L'unico anno non positivo è di fatto un pareggio (−0,6%). Nessun anno disastroso:
+profilo di un edge reale. Il 2021 piatto riflette la lateralizzazione dell'oro.
+
+### Esito
+
+- **EMA 20/50 "liscia": validata.** È la scelta di riferimento per la demo.
+- **Filtro EMA200: scartato.** Anno per anno ha un vero anno in perdita (2021 −6,1%)
+  e WR più basso; il suo vantaggio nel singolo split era effetto del blocco 2023–24.
+  Meno parametri = più robusto.
+
+### Impostazione consigliata per la demo
+
+- Strategia: EMA cross 20/50, timeframe **H1**
+- Rischio: **0,5%/trade** (porta il DD annuo sotto ~10%)
+- Stop: 2×ATR(14); uscita su incrocio opposto
+- Validazione: demo MT4 ≥ 1–3 mesi sul proprio broker (spread reale, "Every tick")
+
+Riproduci: `python3 scripts/walkforward.py XAUUSD --tf H1`
