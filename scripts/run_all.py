@@ -17,7 +17,10 @@ import resample_mt4 as rs
 from backtest import (load, atr, run, strategies, ATR_PERIOD, DATADIR, START_EQUITY)
 
 YEARS = [2020, 2021, 2022, 2023, 2024]
-TFS = ["M15", "H1", "H4", "D1"]
+# M15 escluso dalla selezione: su timeframe bassi il backtest bar-based produce
+# artefatti (migliaia di micro-trade compoundati) irrealistici coi costi reali.
+RESAMPLE_TFS = ["M15", "H1", "H4", "D1"]
+TFS = ["H1", "H4", "D1"]
 SPLIT = 2023
 RAWDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "raw")
 
@@ -48,14 +51,16 @@ def ensure_data(pair):
                 print(f"   dl {pair} {y} retry {att+1}: {str(e)[:60]}")
                 time.sleep(2 * (att + 1))
         time.sleep(0.5)
-    # resample
+    # resample (salta se i file MT4 esistono gia': riesecuzioni rapide)
+    if all(os.path.exists(os.path.join(rs.OUTDIR, f"{pair}_{tf}.csv")) for tf in RESAMPLE_TFS):
+        return True
     import glob
     paths = glob.glob(os.path.join(RAWDIR, f"DAT_ASCII_{pair}_M1_*.csv"))
     if not paths:
         return False
     rows = rs.read_m1(paths, 0)
     os.makedirs(rs.OUTDIR, exist_ok=True)
-    for tf in TFS:
+    for tf in RESAMPLE_TFS:
         bars = rows if tf == "M1" else rs.resample(rows, rs.TF_MIN[tf])
         rs.write_mt4(bars, os.path.join(rs.OUTDIR, f"{pair}_{tf}.csv"))
     return True
