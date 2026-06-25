@@ -10,19 +10,22 @@ equal-risk ha un profilo rischio/rendimento migliore di ogni singola strategia.
 
 Uso: python3 portfolio.py
 """
-import os, math, datetime
+import os, sys, math, datetime
 from backtest import (load, atr, ema, rsi, sma, rolling_std,
                       sig_ema_cross, sig_rsi_rev, sig_boll_rev,
                       ATR_PERIOD, DATADIR)
+from backtest_mtf import higher_trend_on_h1, gate
 
 RISK = 0.005   # 0,5% per trade
+# Flag CLI: --mtf applica il filtro trend D1 alle gambe TREND (regola: MTF sui trend)
+USE_MTF = "--mtf" in sys.argv
 
-# I 4 strumenti VERDI (WF 4-5/5), tutti su H1, con la loro config validata e costo
+# I 4 strumenti VERDI (WF 4-5/5), tutti su H1. Ultimo campo: applica MTF? (solo trend)
 GREEN = [
-    ("XAUUSD", "H1", "trend", lambda o,h,l,c: sig_ema_cross(o,h,l,c,20,50), 2.0, 0.0, 0.15),
-    ("EURUSD", "H1", "rev",   lambda o,h,l,c: sig_rsi_rev(o,h,l,c,14,25,75), 1.5, 1.5, 0.00015),
-    ("USDCHF", "H1", "rev",   lambda o,h,l,c: sig_boll_rev(o,h,l,c,20,2.0),  1.5, 1.5, 0.00018),
-    ("NSXUSD", "H1", "trend", lambda o,h,l,c: sig_ema_cross(o,h,l,c,10,30),  2.0, 0.0, 2.0),
+    ("XAUUSD", "H1", "trend", lambda o,h,l,c: sig_ema_cross(o,h,l,c,20,50), 2.0, 0.0, 0.15, True),
+    ("EURUSD", "H1", "rev",   lambda o,h,l,c: sig_rsi_rev(o,h,l,c,14,25,75), 1.5, 1.5, 0.00015, False),
+    ("USDCHF", "H1", "rev",   lambda o,h,l,c: sig_boll_rev(o,h,l,c,20,2.0),  1.5, 1.5, 0.00018, False),
+    ("NSXUSD", "H1", "trend", lambda o,h,l,c: sig_ema_cross(o,h,l,c,10,30),  2.0, 0.0, 2.0, True),
 ]
 
 
@@ -84,13 +87,15 @@ def corr(a, b):
 def main():
     monthlies = {}
     names = []
-    for pair, tf, mode, fn, ks, kt, cost in GREEN:
+    for pair, tf, mode, fn, ks, kt, cost, mtf in GREEN:
         p = os.path.join(DATADIR, f"{pair}_{tf}.csv")
         if not os.path.exists(p):
             print(f"manca {pair} {tf}"); continue
         t, o, h, l, c = load(p)
         a = atr(h, l, c, ATR_PERIOD)
         sig, m = fn(o, h, l, c)
+        if USE_MTF and mtf:
+            sig = gate(sig, higher_trend_on_h1(t, pair))   # filtro trend D1 sulle gambe trend
         monthlies[pair] = trades_monthly((t,o,h,l,c), sig, m, a, ks, kt, cost)
         names.append(pair)
 
