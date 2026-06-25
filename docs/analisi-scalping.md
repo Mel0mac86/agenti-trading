@@ -49,3 +49,31 @@ backtest gonfiato tipico dei robot venduti ai principianti. Ai costi realistici
 i €100. La ricchezza si costruisce con capitale + tempo + sopravvivenza, non con
 micro-trade ad alta frequenza su un conto minuscolo. Vedi
 `obiettivo-100-a-milioni.md` per il piano realistico.
+
+---
+
+## Tentativo di MIGLIORARE l'M5 (filtri MTF + sessione)
+
+Domanda onesta: si può rendere l'M5 sostenibile riducendo i trade e alzando la
+qualità? Test su oro M5, costo realistico 0,20.
+Riproduci: `python3 scripts/m5_improve.py`
+
+| Config | Filtri | OOS ret | PF | #trade | WF |
+|--------|--------|--------:|----:|------:|:--:|
+| EMA 20/50 | nessuno | −96% | 0,87 | 4.217 | 0/5 |
+| EMA 20/50 | +MTF | −81% | 0,91 | 2.817 | 0/5 |
+| EMA 20/50 | +MTF+sessione | −63% | 0,91 | 1.816 | 0/5 |
+| EMA 50/200 | +MTF | −38% | 1,00 | 1.727 | 1/5 |
+
+**I filtri aiutano** (da −96% a −38%, trade da 4.200 a 1.700) ma **non bastano**:
+il migliore arriva a PF 1,00 = rumore puro dopo i costi. Su M5 il movimento medio
+è troppo piccolo rispetto al costo pagato su ogni trade.
+
+### Il vero miglioramento dell'M5 è salire di timeframe
+
+Stesso edge EMA, stessi costi:
+- **M5**: −38% (migliore caso) → perde
+- **H1**: +44% (validato, 4/5 anni) → guadagna
+
+Cambia solo che su H1 il movimento copre ampiamente il costo. Non è preferenza, è
+aritmetica. L'M5 non è migliorabile fino alla redditività robusta con questi costi.
