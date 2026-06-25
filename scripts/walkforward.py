@@ -20,6 +20,7 @@ from backtest import (load, atr, run, ema, sma, rolling_std, highest, lowest,
 
 # registro strategie: nome -> (funzione segnale, (k_stop, k_target))
 STRATS = {
+    "ema1030":  (lambda o,h,l,c: sig_ema_cross(o,h,l,c,10,30),        (2.0, 0.0)),
     "ema2050":  (lambda o,h,l,c: sig_ema_cross(o,h,l,c,20,50),        (2.0, 0.0)),
     "ema20100": (lambda o,h,l,c: sig_ema_cross(o,h,l,c,20,100),       (2.0, 0.0)),
     "ema50200": (lambda o,h,l,c: sig_ema_cross(o,h,l,c,50,200),       (2.0, 0.0)),
@@ -47,8 +48,9 @@ def main():
     ap.add_argument("--strat", default="ema2050", choices=sorted(STRATS))
     ap.add_argument("--tf", default="H1")
     ap.add_argument("--spread", type=int, default=DEF_SPREAD_POINTS)
+    ap.add_argument("--cost", type=float, default=None, help="costo/trade in unita' di prezzo (override)")
     args = ap.parse_args()
-    cost = args.spread * DEF_POINT + DEF_COMM_PER_LOT / DEF_CONTRACT
+    cost = args.cost if args.cost is not None else (args.spread * DEF_POINT + DEF_COMM_PER_LOT / DEF_CONTRACT)
 
     path = os.path.join(DATADIR, f"{args.pair.upper()}_{args.tf}.csv")
     if not os.path.exists(path):

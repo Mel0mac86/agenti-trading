@@ -243,11 +243,12 @@ def main():
     ap.add_argument("--tf", nargs="+", default=["M15", "H1", "H4", "D1"])
     ap.add_argument("--split", type=int, default=2023, help="anno di inizio out-of-sample")
     ap.add_argument("--spread", type=int, default=DEF_SPREAD_POINTS)
+    ap.add_argument("--cost", type=float, default=None, help="costo/trade in unita' di prezzo (override)")
     ap.add_argument("--min-trades", type=int, default=30)
     ap.add_argument("--max-dd", type=float, default=0.25)
     args = ap.parse_args()
 
-    cost_price = args.spread * DEF_POINT + DEF_COMM_PER_LOT / DEF_CONTRACT
+    cost_price = args.cost if args.cost is not None else (args.spread * DEF_POINT + DEF_COMM_PER_LOT / DEF_CONTRACT)
     print(f"# {args.pair} | costo/trade = {cost_price:.3f} (spread {args.spread}pt + comm) "
           f"| rischio {RISK_PER_TRADE*100:.2f}%/trade | OOS da {args.split}\n")
 

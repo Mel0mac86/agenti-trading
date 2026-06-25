@@ -62,15 +62,13 @@ Filone dedicato allo sviluppo di EA per MetaTrader 4 su **oro, indici, metalli e
 con priorità a contenere **spread, commissioni e drawdown**.
 
 - [`experts/FleetGuard_EA.mq4`](experts/FleetGuard_EA.mq4) — motore EA *risk-first* e
-  *cost-aware*: sizing su rischio %, soft-stop su DD totale, stop giornaliero, filtri
-  spread/sessione, commissioni incluse nel rischio. La strategia è agganciabile nella
-  funzione `Signal()`.
+  *cost-aware* (trend-following EMA): sizing su rischio %, soft-stop su DD totale, stop
+  giornaliero, filtri spread/sessione. Per **oro** (EMA 20/50, H1) e **argento** (EMA 10/30, H4).
+- [`experts/FleetReversion_EA.mq4`](experts/FleetReversion_EA.mq4) — EA mean-reversion
+  (Bollinger), stesso motore di rischio, per **indici** (S&P 500, D1): WR 70–80%, DD <3%.
 - [`docs/framework-rischio-e-backtest.md`](docs/framework-rischio-e-backtest.md) — profilo
   di rischio raccomandato, regola dei costi e protocollo di backtest sullo Strategy Tester.
-- [`docs/risultati-backtest-xauusd.md`](docs/risultati-backtest-xauusd.md) — risultati oro:
-  EMA 20/50 H1 validata in walk-forward (4/5 anni positivi).
-- [`docs/risultati-backtest-spxusd.md`](docs/risultati-backtest-spxusd.md) — risultati S&P 500:
-  le strategie non si trasferiscono; sull'indice esiste l'edge alto-WR/basso-DD (Bollinger D1).
+- Risultati validati: [oro](docs/risultati-backtest-xauusd.md) · [S&P 500](docs/risultati-backtest-spxusd.md) · [argento](docs/risultati-backtest-xagusd.md)
 - [`docs/guida-demo-mt4.md`](docs/guida-demo-mt4.md) — guida passo-passo per compilare,
   backtestare e avviare l'EA in demo su MT4.
 - Pipeline dati: `scripts/histdata_download.py`, `scripts/resample_mt4.py`,
