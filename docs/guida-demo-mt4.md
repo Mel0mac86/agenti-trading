@@ -1,6 +1,17 @@
 # Guida: avviare l'EA in demo su MetaTrader 4
 
-Percorso per portare `FleetGuard_EA.mq4` dal codice alla demo, passo per passo.
+Percorso per portare gli EA dal codice alla demo, passo per passo.
+
+## Mappa strumento → EA → impostazioni (configurazioni validate)
+
+| Strumento | EA | TF | Impostazioni chiave |
+|-----------|----|----|---------------------|
+| Oro (XAUUSD) | FleetGuard_EA | H1 | FastMA=20, SlowMA=50 |
+| Argento (XAGUSD) | FleetGuard_EA | H4 | FastMA=10, SlowMA=30 |
+| S&P 500 (SPXUSD) | FleetReversion_EA | D1 | SignalMode=BOLLINGER, BB 20/2.0 |
+| EUR/USD | FleetReversion_EA | H1 | SignalMode=RSI, RSI 14, 25/75 |
+
+Rischio 0,5%/trade su tutti. Un EA per grafico; ogni strumento sul proprio timeframe.
 
 ## A. Installare e compilare l'EA
 

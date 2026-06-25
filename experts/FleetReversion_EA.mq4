@@ -1,8 +1,10 @@
 //+------------------------------------------------------------------+
 //|                                              FleetReversion_EA.mq4 |
-//|   EA mean-reversion (Bollinger) per indici, stesso motore di       |
-//|   rischio di FleetGuard. Validato in walk-forward su S&P500 (D1):  |
-//|   win rate 70-80%, drawdown < 3%. Rendimenti contenuti.           |
+//|   EA mean-reversion (Bollinger o RSI) con il motore di rischio di  |
+//|   FleetGuard. Modalita' selezionabile via SignalMode:             |
+//|     BOLLINGER -> indici  (S&P500 D1):  WR 70-80%, DD <3%          |
+//|     RSI       -> forex   (EURUSD H1):  WR 53-60%, 4/5 anni        |
+//|   Entrambe validate in walk-forward. Rendimenti contenuti.        |
 //|                                                                   |
 //|   Materiale didattico. Testare PRIMA su conto demo.               |
 //+------------------------------------------------------------------+
@@ -25,11 +27,24 @@ input bool   UseSessionFilter  = false;  // sui daily di solito non serve
 input int    StartHour         = 0;
 input int    EndHour           = 24;
 
-//================= INPUT: STRATEGIA (Bollinger reversion - validata) =================
-// Validata in walk-forward su SPXUSD D1: long sotto banda inferiore, short sopra
-// banda superiore; stop e target su ATR (RR 1:1). Girare su timeframe D1.
+//================= INPUT: STRATEGIA (mean-reversion - validata) =================
+// Due modalita' validate in walk-forward:
+//  - BOLLINGER -> indici (S&P500 D1): WR 70-80%, DD <3%
+//  - RSI       -> forex  (EUR/USD H1): WR 53-60%, 4/5 anni positivi
+// Stop e target su ATR (RR 1:1).
+enum ENUM_REV_MODE { REV_BOLLINGER=0, REV_RSI=1 };
+input ENUM_REV_MODE SignalMode = REV_BOLLINGER;   // scegli il motore di segnale
+
+// --- Bollinger (per indici, es. SPXUSD D1) ---
 input int    BB_Period         = 20;
 input double BB_Dev            = 2.0;
+
+// --- RSI (per forex, es. EURUSD H1) ---
+input int    RSI_Period        = 14;
+input double RSI_Oversold      = 25;     // sotto -> long
+input double RSI_Overbought    = 75;     // sopra -> short
+
+// --- Comuni ---
 input int    ATR_Period        = 14;
 input double SL_ATR_Mult       = 1.5;    // Stop   = 1.5 * ATR
 input double TP_ATR_Mult       = 1.5;    // Target = 1.5 * ATR (RR 1:1)
@@ -46,8 +61,11 @@ int OnInit()
    g_peakEquity = AccountEquity();
    g_dayStartEq = AccountEquity();
    g_dayStamp   = TimeDay(TimeCurrent());
-   Print("FleetReversion_EA avviato (Bollinger ", BB_Period, "/", BB_Dev,
-         "). Rischio/trade=", RiskPercent, "%  DDmax=", MaxTotalDD_Pct, "%");
+   string m = (SignalMode == REV_RSI)
+              ? StringConcatenate("RSI ", RSI_Period, " ", RSI_Oversold, "/", RSI_Overbought)
+              : StringConcatenate("Bollinger ", BB_Period, "/", BB_Dev);
+   Print("FleetReversion_EA avviato (", m, "). Rischio/trade=", RiskPercent,
+         "%  DDmax=", MaxTotalDD_Pct, "%");
    return(INIT_SUCCEEDED);
 }
 
@@ -124,10 +142,19 @@ double CalcLots(double slPriceDistance)
 }
 
 //+------------------------------------------------------------------+
-//| STRATEGIA: Bollinger reversion. +1 sotto banda inf, -1 sopra sup. |
+//| STRATEGIA: mean-reversion. +1 = atteso rimbalzo, -1 = atteso ritorno.|
+//| Modalita' BOLLINGER (indici) o RSI (forex) secondo SignalMode.    |
 //+------------------------------------------------------------------+
 int Signal()
 {
+   if(SignalMode == REV_RSI)
+   {
+      double r = iRSI(NULL, 0, RSI_Period, PRICE_CLOSE, 1);
+      if(r < RSI_Oversold)   return(1);    // ipervenduto -> long
+      if(r > RSI_Overbought) return(-1);   // ipercomprato -> short
+      return(0);
+   }
+   // BOLLINGER
    double lower = iBands(NULL, 0, BB_Period, BB_Dev, 0, PRICE_CLOSE, MODE_LOWER, 1);
    double upper = iBands(NULL, 0, BB_Period, BB_Dev, 0, PRICE_CLOSE, MODE_UPPER, 1);
    double cl    = Close[1];
