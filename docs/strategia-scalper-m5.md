@@ -40,9 +40,14 @@ matematico per cui lo scalping retail fallisce: l'edge è più piccolo dei costi
 
 ## Se proprio vuoi provarlo (solo demo, mai €100 reali)
 
-- Strumento EUR/USD, timeframe M5, ore 03:00–12:00 (EST) / adatta al tuo broker.
-- RSI(7): long sotto 20, short sopra 80. Stop e target 1,5×ATR(14).
-- Motore: `FleetReversion_EA` in modalità RSI (manca il filtro sessione: andrebbe aggiunto).
-- Prima di tutto: misura il TUO costo all-in reale. Se è > 2 pip, non ha senso partire.
+- Strumento EUR/USD, timeframe M5.
+- Motore: `FleetReversion_EA` in modalità RSI. Il filtro di sessione è **già incluso**.
+- Preset scalper (Inputs dell'EA):
+  - `SignalMode = REV_RSI`
+  - `RSI_Period = 7`, `RSI_Oversold = 20`, `RSI_Overbought = 80`
+  - `SL_ATR_Mult = 1.5`, `TP_ATR_Mult = 1.5`
+  - `UseSessionFilter = true`, `StartHour = 3`, `EndHour = 12` (adatta al fuso del tuo broker)
+  - `RiskPercent = 0.5`, `CommissionPerLot` = quella reale del tuo broker
+- **Prima di tutto: misura il TUO costo all-in reale.** Se è > 2 pip, non ha senso partire.
 
-Vedi anche `analisi-scalping.md` (costi) e `obiettivo realistico` per il quadro completo.
+Vedi anche `analisi-scalping.md` (costi) e `obiettivo-100-a-milioni.md` per il quadro completo.

@@ -6,6 +6,11 @@
 //|     RSI       -> forex   (EURUSD H1):  WR 53-60%, 4/5 anni        |
 //|   Entrambe validate in walk-forward. Rendimenti contenuti.        |
 //|                                                                   |
+//|                                                                   |
+//|   Preset SCALPER M5 (solo broker ECN <=2 pip, solo demo):         |
+//|     SignalMode=RSI, RSI 7 20/80, SL/TP 1.5xATR, UseSessionFilter   |
+//|     true (3-12). Vedi docs/strategia-scalper-m5.md.                |
+//|                                                                   |
 //|   Materiale didattico. Testare PRIMA su conto demo.               |
 //+------------------------------------------------------------------+
 #property strict
