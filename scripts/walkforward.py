@@ -13,7 +13,7 @@ Uso:
 """
 import os, sys, argparse
 from backtest import (load, atr, run, ema, sma, rolling_std, highest, lowest,
-                      sig_ema_cross, sig_donchian, sig_roc, sig_boll_rev,
+                      sig_ema_cross, sig_donchian, sig_roc, sig_boll_rev, sig_rsi_rev,
                       DEF_SPREAD_POINTS, DEF_POINT, DEF_COMM_PER_LOT, DEF_CONTRACT,
                       ATR_PERIOD, DATADIR)
 
@@ -30,6 +30,8 @@ STRATS = {
     "roc10":    (lambda o,h,l,c: sig_roc(o,h,l,c,10),                 (2.0, 0.0)),
     "roc20":    (lambda o,h,l,c: sig_roc(o,h,l,c,20),                 (2.0, 0.0)),
     "boll20":   (lambda o,h,l,c: sig_boll_rev(o,h,l,c,20,2.0),        (1.5, 1.5)),
+    "rsi2575":  (lambda o,h,l,c: sig_rsi_rev(o,h,l,c,14,25,75),       (1.5, 1.5)),
+    "rsi3070":  (lambda o,h,l,c: sig_rsi_rev(o,h,l,c,14,30,70),       (1.5, 1.5)),
 }
 
 

@@ -68,7 +68,7 @@ con priorità a contenere **spread, commissioni e drawdown**.
   (Bollinger), stesso motore di rischio, per **indici** (S&P 500, D1): WR 70–80%, DD <3%.
 - [`docs/framework-rischio-e-backtest.md`](docs/framework-rischio-e-backtest.md) — profilo
   di rischio raccomandato, regola dei costi e protocollo di backtest sullo Strategy Tester.
-- Risultati validati: [oro](docs/risultati-backtest-xauusd.md) · [S&P 500](docs/risultati-backtest-spxusd.md) · [argento](docs/risultati-backtest-xagusd.md)
+- Risultati validati: [oro](docs/risultati-backtest-xauusd.md) · [S&P 500](docs/risultati-backtest-spxusd.md) · [argento](docs/risultati-backtest-xagusd.md) · [EUR/USD](docs/risultati-backtest-eurusd.md)
 - [`docs/guida-demo-mt4.md`](docs/guida-demo-mt4.md) — guida passo-passo per compilare,
   backtestare e avviare l'EA in demo su MT4.
 - Pipeline dati: `scripts/histdata_download.py`, `scripts/resample_mt4.py`,
